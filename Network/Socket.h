@@ -22,12 +22,12 @@ namespace Network {
 		~Socket();
 
 		bool open(unsigned short port);
-		void close();
+		void sock_close();
 		bool isOpen() const;
 
 		int generateHeader(unsigned char *buffer, uint32_t protID, uint32_t seqNum, uint16_t connID, uint8_t flags);
 		bool send(const Address &dest, const void *data, int size);
-		bool Socket::sendAck(const Address &dest, uint32_t protID, uint16_t connID);
+		bool sendAck(const Address &dest, uint32_t protID, uint16_t connID);
 		int receive(Address &sender, void *data, int size);
 
 	private:

@@ -10,7 +10,7 @@
 #if defined(_WIN32)
 #define PLATFORM PLAT_WINDOWS
 #elif defined(__APPLE__)
-#define PLATFORM PLAT_WINDOWS
+#define PLATFORM PLAT_MAC
 #else
 #define PLATFORM PLAT_WINDOWS
 #endif
@@ -19,9 +19,12 @@
 #include <WinSock2.h>
 #pragma comment( lib, "wsock32.lib" )
 #elif PLATFORM == PLAT_MAC || PLATFORM == PLAT_LINUX
+
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <fcntl.h>
+#include <zconf.h>
+
 #endif
 
 namespace Network {
@@ -79,7 +82,7 @@ namespace Network {
 #endif
 		return true;
 	}
-	void Socket::close() {
+	void Socket::sock_close() {
 #if PLATFORM == PLAT_MAC || PLATFORM == PLAT_LINUX
 		close(_sock);
 #elif PLATFORM == PLAT_WINDOWS

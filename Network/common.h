@@ -1,6 +1,7 @@
 #pragma once
 
-#include <glm\glm.hpp>
+#include <glm/glm.hpp>
+#include <cstdint>
 
 #define PACKET_BACKUP 8 //Number of previous states to keep
 
@@ -15,7 +16,7 @@ typedef enum {
 typedef enum {
 	ccmd_Update,
 	ccmd_EOF
-};
+} cl_cmd;
 
 //
 // EntityState for sending data over network

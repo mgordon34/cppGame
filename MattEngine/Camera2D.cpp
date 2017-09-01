@@ -1,10 +1,11 @@
+#include <cstdio>
 #include "Camera2D.h"
 
 namespace MattEngine {
 
 	Camera2D::Camera2D() : _scale(1.0f),
 		_screenWidth(800),
-		_screenHeight(500),
+		_screenHeight(600),
 		_needsMatrixUpdate(true),
 		_orthoMatrix(1.0f),
 		_position(0.0f, 0.0f),
@@ -19,7 +20,7 @@ namespace MattEngine {
 	}
 
 	void Camera2D::init(int screenWidth, int screenHeight) {
-		_screenWidth = screenHeight;
+		_screenWidth = screenWidth;
 		_screenHeight = screenHeight;
 		_orthoMatrix = glm::ortho(0.0f, (float)_screenWidth, 0.0f, (float)_screenHeight);
 	}
@@ -39,6 +40,7 @@ namespace MattEngine {
 
 	glm::vec2 Camera2D::convertScreenToWorld(glm::vec2 screenCoords) {
 		screenCoords.y = _screenHeight - screenCoords.y;
+        printf("width: %f\n", _screenWidth);
 		screenCoords -= glm::vec2(_screenWidth / 2, _screenHeight / 2);
 		screenCoords /= _scale;
 		screenCoords += _position;

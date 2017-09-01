@@ -9,10 +9,6 @@ void Entity::update() {
 
 }
 
-void Entity::draw(MattEngine::SpriteBatch &sb) {
-	printf("this ran\n");
-}
-
 EntityState Entity::getState() {
 	EntityState state;
 	

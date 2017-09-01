@@ -1,5 +1,5 @@
 #include "spritesheet.h"
-#include <SOIL\SOIL.h>
+#include <SOIL/SOIL.h>
 #include <iostream>
 
 namespace MattEngine {

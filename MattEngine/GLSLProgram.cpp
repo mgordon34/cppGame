@@ -35,7 +35,7 @@ namespace MattEngine {
 	void GLSLProgram::compileShader(std::string filepath, GLuint id) {
 		std::ifstream shaderFile(filepath);
 		if (shaderFile.fail()) {
-			std::cout << "failed to open vertshaderfilepath" << std::endl;
+			std::cout << "failed to open shader filepath" << std::endl;
 		}
 
 		std::string fileContents = "";

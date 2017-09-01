@@ -1,7 +1,7 @@
 #include "game.h"
 
-#include <MattEngine\ImageLoader.h>
-#include <MattEngine\ResourceManager.h>
+#include <MattEngine/ImageLoader.h>
+#include <MattEngine/ResourceManager.h>
 
 #include <Network/Message.h>
 
@@ -120,6 +120,7 @@ void Game::gameLoop() {
 		if (deltaTime > period) {
 			glfwPollEvents();
 			glfwGetFramebufferSize(_window.getWindow(), &_width, &_height);
+            glViewport(0, 0, _width, _height);
 
 			processInputs();
 			_inputManager->update();
@@ -170,7 +171,9 @@ void Game::processInputs() {
 	}
 	if (_inputManager->isKeyPressed(GLFW_MOUSE_BUTTON_1)) {
 		glm::vec2 coords = _inputManager->getMouseCoords();
+        printf("x:%f y:%f\n", coords.x, coords.y);
 		coords = _camera.convertScreenToWorld(coords);
+        printf("x:%f y:%f\n", coords.x, coords.y);
 		_bullets.push_back(new Bullet(0, 0, _bullets.size(), glm::normalize(coords - glm::vec2(0,0)), 2));
 	}
 }
@@ -276,7 +279,7 @@ void Game::render() {
 	glm::vec4 position(0, 0, 100, 100);
 	glm::vec4 uv(0.0f, 0.0f, 1.0f, 1.0f);
 	float depth = 1.0f;
-	static GLuint tex = MattEngine::ResourceManager::getTexture("res/xd.png");
+	static GLuint tex = MattEngine::ResourceManager::getTexture("res/xd2.png");
 	MattEngine::Color color;
 	color.r = 255;
 	color.g = 255;

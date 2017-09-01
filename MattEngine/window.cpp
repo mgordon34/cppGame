@@ -15,7 +15,15 @@ namespace MattEngine {
 		_height = height;
 		_time = 0.0f;
 
+		glewExperimental = GL_TRUE;
+
 		glfwInit();
+
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
 		_window = glfwCreateWindow(_width, _height, _name, NULL, NULL);
 		if (!_window) {
 			std::cout << "Error" << std::endl;

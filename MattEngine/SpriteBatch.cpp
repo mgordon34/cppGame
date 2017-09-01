@@ -61,10 +61,8 @@ namespace MattEngine {
 
 		for (int i = 0; i < _renderBatches.size(); i++) {
 			glBindTexture(GL_TEXTURE_2D, _renderBatches[i].textureID);
-			glDrawArrays(GL_QUADS, _renderBatches[i].offset, _renderBatches[i].numVertices);
+			glDrawArrays(GL_TRIANGLES, _renderBatches[i].offset, _renderBatches[i].numVertices);
 		}
-
-		glBindVertexArray(0);
 	}
 
 	void SpriteBatch::createVertexArray() {
@@ -87,38 +85,40 @@ namespace MattEngine {
 		glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex), (void *)offsetof(Vertex, color));
 		//UV Attribute Pointer
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, uv));
-
-		glBindVertexArray(0);
 	}
 
 	void SpriteBatch::createRenderBatches() {
 		std::vector<Vertex> vertices;
-		vertices.resize(_glyphs.size() * 4);
+		vertices.resize(_glyphs.size() * 6);
 		if (_glyphs.empty()) {
 			return;
 		}
 
 		int currVertex = 0;
 		int offset = 0;
-		_renderBatches.emplace_back(offset, 4, _glyphs[0]->textureID);
+		_renderBatches.emplace_back(offset, 6, _glyphs[0]->textureID);
 		vertices[currVertex++] = _glyphs[0]->topLeft;
 		vertices[currVertex++] = _glyphs[0]->bottomLeft;
 		vertices[currVertex++] = _glyphs[0]->bottomRight;
+		vertices[currVertex++] = _glyphs[0]->bottomRight;
 		vertices[currVertex++] = _glyphs[0]->topRight;
-		offset += 4;
+		vertices[currVertex++] = _glyphs[0]->topLeft;
+		offset += 6;
 
 		for (int currGlyph = 1; currGlyph < _glyphs.size(); currGlyph++) {
 			if (_glyphs[currGlyph]->textureID != _glyphs[currGlyph - 1]->textureID) {
-				_renderBatches.emplace_back(offset, 4, _glyphs[currGlyph]->textureID);
+				_renderBatches.emplace_back(offset, 6, _glyphs[currGlyph]->textureID);
 			}
 			else {
-				_renderBatches.back().numVertices += 4;
+				_renderBatches.back().numVertices += 6;
 			}
 			vertices[currVertex++] = _glyphs[currGlyph]->topLeft;
 			vertices[currVertex++] = _glyphs[currGlyph]->bottomLeft;
 			vertices[currVertex++] = _glyphs[currGlyph]->bottomRight;
+			vertices[currVertex++] = _glyphs[currGlyph]->bottomRight;
 			vertices[currVertex++] = _glyphs[currGlyph]->topRight;
-			offset += 4;
+			vertices[currVertex++] = _glyphs[currGlyph]->topLeft;
+			offset += 6;
 		}
 
 		glBindBuffer(GL_ARRAY_BUFFER, _vboID);
