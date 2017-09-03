@@ -8,6 +8,7 @@
 #include <Network/Address.h>
 #include <Network/Connection.h>
 #include <Network/Socket.h>
+#include <Network/Message.h>
 
 #include "entity.h"
 #include "Player.h"
@@ -30,7 +31,7 @@ public:
 	void run();
 
 	void receive();
-	void sendMessages();
+    void broadcast(Network::Message msg);
 
 	void buildSnapshot(Network::Connection &client);
 	void sendSnapshot(Network::Connection &client);

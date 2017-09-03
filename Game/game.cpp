@@ -153,10 +153,11 @@ void Game::processInputs() {
 	}
 	if (_inputManager->isKeyPressed(GLFW_MOUSE_BUTTON_1)) {
         switch (_gameState) {
-            case GameState ::PLAY:
+            case GameState ::PLAY: {
                 glm::vec2 coords = _inputManager->getMouseCoords();
                 coords = _camera.convertScreenToWorld(coords);
-                _entities.push_back(new Bullet(0, 0, _entities.size(), glm::normalize(coords - glm::vec2(0,0)), 2));
+                _entities.push_back(new Bullet(0, 0, _entities.size(), glm::normalize(coords - glm::vec2(0, 0)), 2));
+            }
         }
 	}
 }
@@ -165,20 +166,21 @@ void Game::update() {
 	_time += 0.1;
 
 	switch (_gameState) {
-	case GameState::CONNECTING:
-		if (_connection._state == Network::ConnState::CLOSED) {
-            //write SYN
-			Message msg;
-			msg.writeLong(69420);
-			msg.writeLong(0);
-			msg.writeShort(0);
-			msg.writeByte(SYN);
+        case GameState::CONNECTING: {
+            if (_connection._state == Network::ConnState::CLOSED) {
+                //write SYN
+                Network::Message msg;
+                msg.writeLong(69420);
+                msg.writeLong(0);
+                msg.writeShort(0);
+                msg.writeByte(SYN);
 
-			_socket.send(_address, msg._data, sizeof(msg._data));
-			_connection._state = Network::ConnState::CONNECTING;
-			printf("sent SYN\n");
-		}
-		break;
+                _socket.send(_address, msg._data, sizeof(msg._data));
+                _connection._state = Network::ConnState::CONNECTING;
+                printf("sent SYN\n");
+            }
+            break;
+        }
 	}
 
 	//receive memes
@@ -191,41 +193,48 @@ void Game::update() {
 			break;
 		}
 
-		Message msg;
+		Network::Message msg;
 		msg.init(buffer, bytesRead);
-
-		//decipher header
-		uint32_t ID = msg.readLong();
-		uint32_t seq = msg.readLong();
-		uint16_t connID = msg.readShort();
-		uint8_t flags = msg.readByte();
+        uint32_t seq = msg.readLong();
 
 		switch (_connection._state) {
-		case Network::ConnState::CONNECTING:
-			if (flags & (SYN | ACK)) {
-                //send ack
-                _socket.sendAck(_connection._remoteAddress, 69420, _connection._id);
+            case Network::ConnState::CONNECTING: {
+                //decipher header
+                uint16_t connID = msg.readShort();
+                uint8_t flags = msg.readByte();
 
-                //client connected
-				_connection = Network::Connection(_address, connID);
-				_connection._state = Network::ConnState::CONNECTED;
-				_gameState = GameState::PLAY;
+                if (flags & (SYN | ACK)) {
+                    //client connected
+                    printf("client connected\n");
+                    _connection = Network::Connection(_address, connID);
+                    _connection._state = Network::ConnState::CONNECTED;
+                    _gameState = GameState::PRE_GAME;
 
-                player = new Player(0, 0, 0);
+                    //send ack
+                    _socket.sendAck(_connection._remoteAddress, 69420, _connection._id);
 
-				printf("client connected\n");
-
-			}
-			break;
-		case Network::ConnState::CONNECTED:
-			Network::Header header;
-			uint16_t x1 = ((uint16_t *)(buffer + sizeof(header)))[0];
-			uint16_t y1 = ((uint16_t *)(buffer + sizeof(header)))[1];
-			uint16_t x2 = ((uint16_t *)(buffer + sizeof(header)))[2];
-			uint16_t y2 = ((uint16_t *)(buffer + sizeof(header)))[3];
-			//printf("1: %d, %d; 2: %d, %d\n", x1, y1, x2, y2);
+                    player = new Player(0, 0, 0);
+                }
+                break;
+            }
+		    case Network::ConnState::CONNECTED: {
+                uint32_t ack = msg.readLong();
+                uint8_t cmd = msg.readByte();
+                while (cmd != scmd_EOF) {
+                    printf("reading cmd\n");
+                    switch (cmd) {
+                        case scmd_GameState:
+                            printf("gamestate cmd\n");
+                            _gameState = static_cast<GameState>(msg.readByte());
+                            break;
+                    }
+                    cmd = msg.readByte();
+                }
+                printf("found EOF\n");
+                break;
+            }
 		}
-		
+
 	}
 	
 	

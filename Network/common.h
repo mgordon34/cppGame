@@ -3,20 +3,21 @@
 #include <glm/glm.hpp>
 #include <cstdint>
 
+#define PROT_ID 69420
 #define PACKET_BACKUP 8 //Number of previous states to keep
 
 //server commands
-typedef enum {
+enum serv_cmd {
 	scmd_GameState,
 	scmd_Snapshot,
 	scmd_EOF
-} serv_cmd;
+};
 
 //client commands
-typedef enum {
+enum cl_cmd {
 	ccmd_Update,
 	ccmd_EOF
-} cl_cmd;
+};
 
 //
 // EntityState for sending data over network

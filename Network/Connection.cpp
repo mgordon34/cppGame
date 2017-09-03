@@ -6,6 +6,7 @@ namespace Network {
 	Connection::Connection()
 	{
 		_seq = 0;
+		_ack = 0;
 	}
 
 	Connection::Connection(Address address, uint32_t id) {

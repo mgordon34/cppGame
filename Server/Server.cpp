@@ -1,8 +1,5 @@
 #include "Server.h"
 
-#include <Network/Message.h>
-#include <Network/common.h>
-
 Server::Server(int port)
 {
 	_port = port;
@@ -65,21 +62,6 @@ void Server::run() {
 			uint8_t message[256];
 			int bp;
 			bp = _sock.generateHeader(message, 69420, 1, 0, 0);
-
-			//temp
-			uint8_t players[8];
-			((uint16_t *)players)[0] = 0;
-			((uint16_t *)players)[1] = 0;
-			((uint16_t *)players)[2] = 50;
-			((uint16_t *)players)[3] = 50;
-			memcpy(message + bp, players, sizeof(players));
-
-			//send packet
-			sendMessages();
-			for (auto it : _clients) {
-				((uint16_t *)message)[4] = it.second._id;
-				_sock.send(it.second._remoteAddress, message, sizeof(message));
-			}
 		}
 
 		lastTime = currTime;
@@ -112,7 +94,7 @@ void Server::buildSnapshot(Network::Connection &client) {
 }
 
 void Server::sendSnapshot(Network::Connection &client) {
-	Message msg;
+	Network::Message msg;
 
 	//Sequence Number
 
@@ -130,7 +112,7 @@ void Server::receive() {
 			break;
 		}
 
-		Message msg;
+		Network::Message msg;
 		msg.init(buffer, bytesRead);
 
 		printf("message from %d.%d.%d.%d:%d: %x\n", sender.getA(),
@@ -145,7 +127,6 @@ void Server::receive() {
 		uint32_t seq = msg.readLong();
 		uint16_t connID = msg.readShort();
 		uint8_t flags = msg.readByte();
-		uint32_t test = msg.readLong();
 
 		printf("Protocol ID: %d\n", protID);
 		if (protID != 69420) {
@@ -154,57 +135,73 @@ void Server::receive() {
 		else {
 			//process packet
 			switch (_state) {
-			case sv_state::CONNECTING:
-				if (flags & SYN) {
-					printf("connection establishing\n");
-					int id = _clients.size() + 1;
-					Network::Connection connection(sender, id);
-					_clients.insert(std::make_pair(id, connection));
+                case sv_state::CONNECTING: {
+                    printf("got here\n");
+					if (flags & SYN) {
+						printf("connection establishing\n");
+						int id = _clients.size() + 1;
+						printf("id: %d\n", id);
+						Network::Connection connection(sender, id);
+						_clients.insert(std::make_pair(id, connection));
 
-					//send SYN/ACK
-					Message sendMsg;
-					sendMsg.writeLong(69420);
-					sendMsg.writeLong(1);
-					sendMsg.writeShort(connection._id);
-					sendMsg.writeByte(SYN | ACK);
-					printf("sending SYN/ACK\n");
-					_sock.send(connection._remoteAddress, sendMsg._data, sizeof(sendMsg._data));
-				}
-				else {
-					auto it = _clients.find(connID);
-					if (it != _clients.end()) {
-						if (flags & ACK) {
-							printf("connection established\n");
-							it->second._state = Network::ConnState::CONNECTED;
-							_connClients++;
+						//send SYN/ACK
+						Network::Message sendMsg;
+						sendMsg.writeLong(1);
+						sendMsg.writeShort(connection._id);
+						sendMsg.writeByte(SYN | ACK);
+						printf("sending SYN/ACK\n");
+						_sock.send(connection._remoteAddress, sendMsg._data, sizeof(sendMsg._data));
+					}
+					else {
+						printf("connID: %d\n", connID);
+						auto it = _clients.find(connID);
+						if (it != _clients.end()) {
+                            printf("same client\n");
+							if (flags & ACK) {
+								printf("connection established\n");
+								it->second._state = Network::ConnState::CONNECTED;
+								_connClients++;
+							}
 						}
 					}
-				}
 
-				//check for full lobby
-				if (_connClients == LOBBY_SIZE) {
-					int count = 0;
-					//intialize players and drop unconnected clients
-					for (auto it : _clients) {
-						if (it.second._state == Network::ConnState::CONNECTED) {
-							//connected client
-							_entities.push_back(new Player(0, (-50 + 100 * count), 1));
+					//check for full lobby
+					if (_connClients == LOBBY_SIZE) {
+						int count = 0;
+						//intialize players and drop unconnected clients
+						for (auto it : _clients) {
+							if (it.second._state == Network::ConnState::CONNECTED) {
+								//connected client
+								_entities.push_back(new Player(0, (-50 + 100 * count), 1));
+							}
+							else {
+								//unconnected client
+								_clients.erase(it.first);
+							}
 						}
-						else {
-							//unconnected client
-							_clients.erase(it.first);
+						//start game
+						printf("starting game...\n");
+						_state = sv_state::PLAY;
+						_gameTime = 0;
+
+						//creategamestate msg
+						for (auto it : _clients) {
+                            printf("sending gamestate\n");
+							Network::Message sendMsg;
+							sendMsg.writeLong(it.second._seq);
+							sendMsg.writeLong(it.second._ack);
+							sendMsg.writeByte(scmd_GameState);
+							sendMsg.writeByte(_state);
+							sendMsg.writeByte(scmd_EOF);
+							_sock.send(it.second._remoteAddress, sendMsg._data, sendMsg._currsize);
 						}
 					}
-					//start game
-					printf("starting game...\n");
-					_state = sv_state::PLAY;
-					_gameTime = 0;
+					break;
 				}
-
-				break;
-			case sv_state::PLAY:
-				//do things
-				break;
+                case sv_state::PLAY: {
+                    //do things
+                    break;
+                }
 			}
 			//handle data
 			//printf("%d xD\n", *(unsigned int*)(buffer + sizeof(header)));
@@ -214,8 +211,8 @@ void Server::receive() {
 
 }
 
-void Server::sendMessages() {
-	for (auto it : _clients) {
-
+void Server::broadcast(Network::Message msg) {
+    for(auto it : _clients) {
+		_sock.send(it.second._remoteAddress, msg._data, msg._currsize);
 	}
 }

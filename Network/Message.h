@@ -2,31 +2,42 @@
 
 #include <stdint.h>
 
-class Message
-{
-public:
-	int _currsize;
-	uint8_t _data[256];
+namespace Network {
+	class Message {
+	public:
+		int _currsize;
+		uint8_t _data[256];
 
-	Message();
-	~Message();
+		Message();
 
-	void init(uint8_t *data, int size);
+		~Message();
 
-	uint32_t readBits(int bits);
-	uint8_t readByte();
-	uint16_t readShort();
-	uint32_t readLong();
-	int readInt();
+		void init(uint8_t *data, int size);
 
-	void writeBits(int data, int bits);
-	void writeByte(uint8_t data);
-	void writeShort(uint16_t data);
-	void writeLong(uint32_t data);
-	void writeInt(int data);
+		uint32_t readBits(int bits);
 
-private:
-	int _readIndex;
+		uint8_t readByte();
 
-};
+		uint16_t readShort();
+
+		uint32_t readLong();
+
+		int readInt();
+
+		void writeBits(int data, int bits);
+
+		void writeByte(uint8_t data);
+
+		void writeShort(uint16_t data);
+
+		void writeLong(uint32_t data);
+
+		void writeInt(int data);
+
+	private:
+		int _readIndex;
+
+	};
+
+}
 

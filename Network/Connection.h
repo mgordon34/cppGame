@@ -17,6 +17,7 @@ namespace Network {
 		ClSnapshot _frames[PACKET_BACKUP];
 
 		uint32_t _seq;
+		uint32_t _ack;
 
 		Connection();
 		Connection(Address address, uint32_t id);

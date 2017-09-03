@@ -115,6 +115,7 @@ namespace Network {
 
 		int sentBytes = sendto(_sock, (const char*)data, size, 0, (sockaddr*)&addr, sizeof(sockaddr_in));
 		if (sentBytes != size) {
+			printf("sentybytes: %d, size: %d\n\n", sentBytes, size);
 			printf("failed to send packet bitch\n");
 			return false;
 		}
