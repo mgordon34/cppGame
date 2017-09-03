@@ -49,8 +49,8 @@ Game::Game(const char *name, int width, int height)
 
 Game::~Game()
 {
-	for (int i = 0; i < _bullets.size(); i++) {
-		delete(_bullets[i]);
+	for (int i = 0; i < _entities.size(); i++) {
+		delete(_entities[i]);
 	}
 }
 
@@ -73,24 +73,6 @@ void Game::init() {
 
 	_inputManager = MattEngine::InputManager::getInstance();
 	_spriteBatch.init();
-
-	//SpriteSheet _spritesheet = SpriteSheet("res/xd2.png");
-
-	MattEngine::Sprite * player = new MattEngine::Sprite(&_window);
-	MattEngine::Sprite * newplayer = new MattEngine::Sprite(&_window);
-
-	//GLuint texID = _spritesheet.getTexID();
-	//Entity * entity = new Entity(this);
-	//player->loadpng("res/xd2.png");
-	player->init(MattEngine::makeVector2(0, 0), 100, 100, "res/xd.png");
-	newplayer->init(MattEngine::makeVector2(100, 100), 100, 100, "res/xd.png");
-	//entity->init(makeVector2(50, 50), 100, 100, texID);
-
-	//_tex = ImageLoader::loadPicture("res/xd.png");
-
-	_sprites.push_back(player);
-	_sprites.push_back(newplayer);
-	//_sprites.push_back(entity);
 }
 
 void Game::initShaders() {
@@ -170,11 +152,12 @@ void Game::processInputs() {
 		_camera.setScale(_camera.getScale() + scaleSpeed);
 	}
 	if (_inputManager->isKeyPressed(GLFW_MOUSE_BUTTON_1)) {
-		glm::vec2 coords = _inputManager->getMouseCoords();
-        printf("x:%f y:%f\n", coords.x, coords.y);
-		coords = _camera.convertScreenToWorld(coords);
-        printf("x:%f y:%f\n", coords.x, coords.y);
-		_bullets.push_back(new Bullet(0, 0, _bullets.size(), glm::normalize(coords - glm::vec2(0,0)), 2));
+        switch (_gameState) {
+            case GameState ::PLAY:
+                glm::vec2 coords = _inputManager->getMouseCoords();
+                coords = _camera.convertScreenToWorld(coords);
+                _entities.push_back(new Bullet(0, 0, _entities.size(), glm::normalize(coords - glm::vec2(0,0)), 2));
+        }
 	}
 }
 
@@ -184,6 +167,7 @@ void Game::update() {
 	switch (_gameState) {
 	case GameState::CONNECTING:
 		if (_connection._state == Network::ConnState::CLOSED) {
+            //write SYN
 			Message msg;
 			msg.writeLong(69420);
 			msg.writeLong(0);
@@ -219,14 +203,18 @@ void Game::update() {
 		switch (_connection._state) {
 		case Network::ConnState::CONNECTING:
 			if (flags & (SYN | ACK)) {
+                //send ack
+                _socket.sendAck(_connection._remoteAddress, 69420, _connection._id);
+
+                //client connected
 				_connection = Network::Connection(_address, connID);
 				_connection._state = Network::ConnState::CONNECTED;
 				_gameState = GameState::PLAY;
 
+                player = new Player(0, 0, 0);
+
 				printf("client connected\n");
 
-				//send ack
-				_socket.sendAck(_connection._remoteAddress, 69420, _connection._id);
 			}
 			break;
 		case Network::ConnState::CONNECTED:
@@ -241,17 +229,21 @@ void Game::update() {
 	}
 	
 	
-	std::vector<MattEngine::Sprite *>::iterator i;
-	for (i = _sprites.begin(); i != _sprites.end(); ++i) {
-		(**i).update();
-	}
+//	std::vector<MattEngine::Sprite *>::iterator i;
+//	for (i = _sprites.begin(); i != _sprites.end(); ++i) {
+//		(**i).update();
+//	}
 
-	/*std::vector<Entity *>::iterator in;
-	for (in = _bullets.begin(); in != _bullets.end(); ++in) {
-		(**in).update();
-	}*/
-	for (int i = 0; i < _bullets.size(); i++) {
-		_bullets[i]->update();
+    for (int i = 0; i < _sprites.size(); i++) {
+        _sprites[i]->update();
+    }
+
+    if (player) {
+        player->update();
+    }
+
+	for (int i = 0; i < _entities.size(); i++) {
+		_entities[i]->update();
 	}
 
 	
@@ -276,21 +268,14 @@ void Game::render() {
 
 	_spriteBatch.begin();
 
-	glm::vec4 position(0, 0, 100, 100);
-	glm::vec4 uv(0.0f, 0.0f, 1.0f, 1.0f);
-	float depth = 1.0f;
-	static GLuint tex = MattEngine::ResourceManager::getTexture("res/xd2.png");
-	MattEngine::Color color;
-	color.r = 255;
-	color.g = 255;
-	color.b = 255;
-	color.a = 255;
+    if (player) {
+        player->draw(_spriteBatch);
+    }
 
-	_spriteBatch.draw(position, uv, tex, depth, color);
+    for (int i = 0; i < _entities.size(); i++) {
+        _entities[i]->draw(_spriteBatch);
+    }
 
-	for (int i = 0; i < _bullets.size(); i++) {
-		_bullets[i]->draw(_spriteBatch);
-	}
 	/*std::vector<Entity *>::iterator in;
 	for (in = _bullets.begin(); in != _bullets.end(); ++in) {
 		(**in).update();

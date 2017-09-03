@@ -24,11 +24,9 @@ namespace MattEngine {
 
 			_textureMap.insert(std::make_pair(filepath, newTexture));
 
-			std::cout << "made new texture" << std::endl;
 			return newTexture;
 		}
 
-		std::cout << "loaded old texture" << std::endl;
 		return map_iter->second;
 
 	}

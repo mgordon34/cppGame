@@ -10,6 +10,7 @@
 #include <Network/Connection.h>
 
 #include <MattEngine/sprite.h>
+#include <Game/src/entities/Player.h>
 #include "src/entities/entity.h"
 #include "src/entities/Bullet.h"
 
@@ -44,9 +45,11 @@ private:
 	const char *_name;
 	float _time;
 
-	GLuint _tex;
+    Player *player = 0;
+
 	std::vector<MattEngine::Sprite *> _sprites;
 	std::vector<Entity *> _bullets;
+	std::vector<Entity *> _entities;
 
 	void init();
 	void initShaders();

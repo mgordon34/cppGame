@@ -13,5 +13,6 @@ public:
 protected:
 	glm::vec2 _pos;
 	uint16_t _id;
+	GLuint _tex;
 };
 

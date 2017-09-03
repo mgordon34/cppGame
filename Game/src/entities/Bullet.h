@@ -4,6 +4,9 @@
 
 #include "entity.h"
 
+#define BULLET_WIDTH 50
+#define BULLET_HEIGHT 50
+
 class Bullet : public Entity
 {
 public:
