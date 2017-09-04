@@ -10,5 +10,13 @@ void Entity::update() {
 }
 
 void Entity::draw(MattEngine::SpriteBatch &sb) {
-	printf("this ran\n");
+	glm::vec4 pos = glm::vec4(_pos.x, _pos.y, _width, _height);
+	glm::vec4 uv = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+	MattEngine::Color color;
+	color.r = 255;
+	color.g = 255;
+	color.b = 255;
+	color.a = 255;
+
+	sb.draw(pos, uv, _tex, 0.0f, color);
 }

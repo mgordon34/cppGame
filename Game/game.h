@@ -14,7 +14,7 @@
 #include "src/entities/entity.h"
 #include "src/entities/Bullet.h"
 
-enum class GameState { CONNECTING, PRE_GAME, PLAY, EXIT};
+enum class GameState { MENU, CONNECTING, PRE_GAME, PLAY, EXIT};
 
 class Game
 {

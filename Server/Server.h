@@ -19,7 +19,7 @@
 #define MAX_ENTITIES 32
 
 
-enum sv_state { CONNECTING, PRE_GAME, PLAY, END };
+enum sv_state { MENU, CONNECTING, PRE_GAME, PLAY, END };
 
 class Server
 {

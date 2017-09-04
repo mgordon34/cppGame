@@ -14,7 +14,7 @@ public:
 	~Player();
 
 	void update();
-	void draw(MattEngine::SpriteBatch &sb);
+//	void draw(MattEngine::SpriteBatch &sb);
 
 private:
 	int health;

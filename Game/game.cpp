@@ -44,7 +44,7 @@ Game::Game(const char *name, int width, int height)
 	_socket.open(0);
 	_address = Network::Address(127, 0, 0, 1, 5000);
 	//TEMP
-	_gameState = GameState::CONNECTING;
+	_gameState = GameState::MENU;
 }
 
 Game::~Game()
@@ -151,6 +151,11 @@ void Game::processInputs() {
 	if (_inputManager->isKeyDown(GLFW_KEY_E)) {
 		_camera.setScale(_camera.getScale() + scaleSpeed);
 	}
+    if (_inputManager->isKeyDown(GLFW_KEY_ENTER)) {
+        if (_gameState == GameState::MENU) {
+            _gameState = GameState::CONNECTING;
+        }
+    }
 	if (_inputManager->isKeyPressed(GLFW_MOUSE_BUTTON_1)) {
         switch (_gameState) {
             case GameState ::PLAY: {
@@ -213,7 +218,6 @@ void Game::update() {
                     //send ack
                     _socket.sendAck(_connection._remoteAddress, 69420, _connection._id);
 
-                    player = new Player(0, 0, 0);
                 }
                 break;
             }
@@ -226,6 +230,10 @@ void Game::update() {
                         case scmd_GameState:
                             printf("gamestate cmd\n");
                             _gameState = static_cast<GameState>(msg.readByte());
+                            //temp
+							if (_gameState == GameState::PLAY) {
+								player = new Player(0, 0, 0);
+							}
                             break;
                     }
                     cmd = msg.readByte();
