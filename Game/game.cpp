@@ -37,14 +37,14 @@ Game::Game(const char *name, int width, int height)
 	_name = name;
 	_width = width;
 	_height = height;
-	_gameState = GameState::PLAY;
+	_gameState = cl_state::PLAY;
 	_camera.init(_width, _height);
 
 	//network memes
 	_socket.open(0);
 	_address = Network::Address(127, 0, 0, 1, 5000);
 	//TEMP
-	_gameState = GameState::MENU;
+	_gameState = cl_state::MENU;
 }
 
 Game::~Game()
@@ -95,7 +95,7 @@ void Game::gameLoop() {
 	double period = 1.0 / Updates_Per_Second;
 	double fps = period * ups;
 
-	while (_gameState != GameState::EXIT && !_window.closed()) {
+	while (_gameState != cl_state::EXIT && !_window.closed()) {
 		currTime = glfwGetTime();
 		deltaTime += currTime - lastTime;	
 
@@ -152,13 +152,18 @@ void Game::processInputs() {
 		_camera.setScale(_camera.getScale() + scaleSpeed);
 	}
     if (_inputManager->isKeyDown(GLFW_KEY_ENTER)) {
-        if (_gameState == GameState::MENU) {
-            _gameState = GameState::CONNECTING;
-        }
+        if (_gameState == cl_state::MENU) {
+            if (_inputManager->isKeyDown(GLFW_KEY_LEFT_SHIFT)) {
+				_gameState = cl_state::PLAY;
+                player = new Player(0, 0, 0);
+			} else {
+				_gameState = cl_state::CONNECTING;
+			}
+		}
     }
 	if (_inputManager->isKeyPressed(GLFW_MOUSE_BUTTON_1)) {
         switch (_gameState) {
-            case GameState ::PLAY: {
+            case cl_state::PLAY: {
                 glm::vec2 coords = _inputManager->getMouseCoords();
                 coords = _camera.convertScreenToWorld(coords);
                 _entities.push_back(new Bullet(0, 0, _entities.size(), glm::normalize(coords - glm::vec2(0, 0)), 2));
@@ -171,7 +176,7 @@ void Game::update() {
 	_time += 0.1;
 
 	switch (_gameState) {
-        case GameState::CONNECTING: {
+        case cl_state::CONNECTING: {
             if (_connection._state == Network::ConnState::CLOSED) {
                 //write SYN
                 Network::Message msg;
@@ -213,7 +218,7 @@ void Game::update() {
                     printf("client connected\n");
                     _connection = Network::Connection(_address, connID);
                     _connection._state = Network::ConnState::CONNECTED;
-                    _gameState = GameState::PRE_GAME;
+                    _gameState = cl_state::PRE_GAME;
 
                     //send ack
                     _socket.sendAck(_connection._remoteAddress, 69420, _connection._id);
@@ -229,9 +234,9 @@ void Game::update() {
                     switch (cmd) {
                         case scmd_GameState:
                             printf("gamestate cmd\n");
-                            _gameState = static_cast<GameState>(msg.readByte());
+                            _gameState = static_cast<cl_state>(msg.readByte());
                             //temp
-							if (_gameState == GameState::PLAY) {
+							if (_gameState == cl_state::PLAY) {
 								player = new Player(0, 0, 0);
 							}
                             break;

@@ -6,6 +6,15 @@
 #define PROT_ID 69420
 #define PACKET_BACKUP 8 //Number of previous states to keep
 
+//Client Gamestate
+enum cl_state {
+	MENU,
+	CONNECTING,
+	PRE_GAME,
+	PLAY,
+	EXIT
+};
+
 //server commands
 enum serv_cmd {
 	scmd_GameState,

@@ -14,8 +14,6 @@
 #include "src/entities/entity.h"
 #include "src/entities/Bullet.h"
 
-enum class GameState { MENU, CONNECTING, PRE_GAME, PLAY, EXIT};
-
 class Game
 {
 public:
@@ -31,7 +29,7 @@ public:
 
 private:
 	MattEngine::Window _window;
-	GameState _gameState;
+	cl_state _gameState;
 	MattEngine::InputManager *_inputManager;
 	MattEngine::GLSLProgram _colorProgram;
 	MattEngine::Camera2D _camera;
