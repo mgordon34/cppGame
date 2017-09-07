@@ -11,6 +11,7 @@
 
 #include <MattEngine/sprite.h>
 #include <Game/src/entities/Player.h>
+#include <Game/src/Menu.h>
 #include "src/entities/entity.h"
 #include "src/entities/Bullet.h"
 
@@ -44,6 +45,8 @@ private:
 	float _time;
 
     Player *player = 0;
+
+	Menu _menu;
 
 	std::vector<MattEngine::Sprite *> _sprites;
 	std::vector<Entity *> _bullets;

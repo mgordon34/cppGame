@@ -73,6 +73,10 @@ void Game::init() {
 
 	_inputManager = MattEngine::InputManager::getInstance();
 	_spriteBatch.init();
+
+	//TEMP
+	_menu = Menu();
+	_menu.add(new Entity(-400, -300, 1, 800, 600, "res/menu.png"));
 }
 
 void Game::initShaders() {
@@ -156,8 +160,11 @@ void Game::processInputs() {
             if (_inputManager->isKeyDown(GLFW_KEY_LEFT_SHIFT)) {
 				_gameState = cl_state::PLAY;
                 player = new Player(0, 0, 0);
+				_menu.clear();
 			} else {
 				_gameState = cl_state::CONNECTING;
+				_menu.clear();
+				_menu.add(new Entity(-400, -300, 1, 800, 600, "res/waiting.png"));
 			}
 		}
     }
@@ -237,6 +244,7 @@ void Game::update() {
                             _gameState = static_cast<cl_state>(msg.readByte());
                             //temp
 							if (_gameState == cl_state::PLAY) {
+								_menu.clear();
 								player = new Player(0, 0, 0);
 							}
                             break;
@@ -302,6 +310,9 @@ void Game::render() {
 	for (in = _bullets.begin(); in != _bullets.end(); ++in) {
 		(**in).update();
 	}*/
+
+	//draw Menu items
+	_menu.render(_spriteBatch);
 
 	_spriteBatch.end();
 	_spriteBatch.renderBatch();

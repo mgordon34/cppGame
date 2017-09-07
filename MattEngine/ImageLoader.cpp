@@ -19,7 +19,7 @@ namespace MattEngine {
 		unsigned char* image = SOIL_load_image(filepath, &w, &h, 0, SOIL_LOAD_RGBA);
 
 		if (!image) {
-			std::cout << "shits wrong with loading image" << std::endl;
+			printf("shits wrong with loading image: %s\n", filepath);
 		}
 
 		GLuint textureID;

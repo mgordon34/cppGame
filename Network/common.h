@@ -15,6 +15,14 @@ enum cl_state {
 	EXIT
 };
 
+//Sever Gamestate
+enum sv_state { SV_MENU,
+	SV_CONNECTING,
+	SV_PRE_GAME,
+	SV_PLAY,
+	SV_END
+};
+
 //server commands
 enum serv_cmd {
 	scmd_GameState,

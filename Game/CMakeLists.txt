@@ -11,7 +11,7 @@ set(GAME_SRC
         src/entities/entity.cpp
         src/entities/entity.h
         src/entities/Player.cpp
-        src/entities/Player.h)
+        src/entities/Player.h src/Menu.cpp src/Menu.h)
 
 add_executable(game ${GAME_SRC})
 target_link_libraries(game MattEngine)

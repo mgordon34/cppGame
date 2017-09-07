@@ -19,7 +19,7 @@ void Server::init() {
 	_snapshotIndex = 0;
 
 	_sock.open(_port);
-	_state = sv_state::CONNECTING;
+	_state = sv_state::SV_CONNECTING;
 }
 
 void Server::run() {
@@ -135,7 +135,7 @@ void Server::receive() {
 		else {
 			//process packet
 			switch (_state) {
-                case sv_state::CONNECTING: {
+                case sv_state::SV_CONNECTING: {
                     printf("got here\n");
 					if (flags & SYN) {
 						printf("connection establishing\n");
@@ -181,7 +181,7 @@ void Server::receive() {
 						}
 						//start game
 						printf("starting game...\n");
-						_state = sv_state::PLAY;
+						_state = sv_state::SV_PLAY;
 						_gameTime = 0;
 
 						//creategamestate msg
@@ -198,7 +198,7 @@ void Server::receive() {
 					}
 					break;
 				}
-                case sv_state::PLAY: {
+                case sv_state::SV_PLAY: {
                     //do things
                     break;
                 }

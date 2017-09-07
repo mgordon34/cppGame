@@ -3,7 +3,7 @@
 #include <MattEngine/ResourceManager.h>
 
 
-Bullet::Bullet(float x, float y, uint16_t id, glm::vec2 dir, float speed) : Entity(x, y, id)
+Bullet::Bullet(float x, float y, uint16_t id, glm::vec2 dir, float speed) : Entity(x, y, id, BULLET_WIDTH, BULLET_HEIGHT, "res/xd.png")
 {
 	_tex = MattEngine::ResourceManager::getTexture("res/xd.png");
 

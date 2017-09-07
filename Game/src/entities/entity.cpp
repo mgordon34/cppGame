@@ -1,8 +1,16 @@
+#include <MattEngine/ResourceManager.h>
 #include "entity.h"
 
 Entity::Entity(float x, float y, uint16_t id) {
+    Entity(x, y, id, 0, 0, "");
+}
+
+Entity::Entity(float x, float y, uint16_t id, int width, int height, const char *tex) {
 	_pos = glm::vec2(x, y);
 	_id = id;
+	_tex = MattEngine::ResourceManager::getTexture(tex);
+    _width = width;
+	_height = height;
 }
 
 void Entity::update() {
